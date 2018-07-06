@@ -37,6 +37,14 @@ func resourceConsulAclToken() *schema.Resource {
 		Read:   resourceConsulAclTokenRead,
 		Delete: resourceConsulAclTokenDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+				d.Set(FieldToken, d.Id())
+				d.SetId(getSHA256(d.Id()))
+				return []*schema.ResourceData{d}, nil
+			},
+		},
+
 		CustomizeDiff: diffResource,
 
 		Schema: map[string]*schema.Schema{

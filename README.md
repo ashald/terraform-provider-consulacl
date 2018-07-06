@@ -15,8 +15,6 @@ Provider is configurable with number of parameters:
 
 * `address` - String, host and port used to connect to Consul. Defaults to `localhost:8500`. Can be set via environment
 variables `CONSUL_ADDRESS` or `CONSUL_HTTP_ADDR`.
-* `datacenter` - String, datacenter to operate in. Defaults to empty values which means local datacenter. Can be set via
-environment variable `CONSUL_DATACENTER`.
 * `token` - String, ACL token to use for API calls to Consul. Must be a `management` token to manage ACLs. Defaults to
 empty value. Can be set via environment variables `CONSUL_TOKEN` or `CONSUL_HTTP_TOKEN`.
 * `scheme` - String, scheme to use to connect to Consul. Defaults to `http`. Can be set via environment variables
@@ -89,7 +87,7 @@ resource "consulacl_token" "token" {
 
 ### Download
 ```bash
-$ wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.0.0/terraform-provider-consulacl_v1.0.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+$ wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.1.0/terraform-provider-consulacl_v1.1.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
 $ chmod +x ./terraform-provider-transform*
 ```
 
@@ -97,7 +95,7 @@ $ chmod +x ./terraform-provider-transform*
 ```bash
 $ ls -1
   main.tf
-  terraform-provider-consulacl_v1.0.0-linux-amd64
+  terraform-provider-consulacl_v1.1.0-linux-amd64
 
 $ terraform init
   
@@ -180,6 +178,21 @@ $ terraform apply
 
 ```
 
+### Import
+
+```bash
+$ terraform import consulacl_token.token "a694f2c0-20c8-902c-7d57-be10bd3edb1b"
+  consulacl_token.token: Importing from ID "a694f2c0-20c8-902c-7d57-be10bd3edb1b"...
+  consulacl_token.token: Import complete!
+    Imported consulacl_token (ID: 929a4284c36bdaa9ba4a96dbbcfd9839160258643e4d1beb9a15fff6c6bcd027)
+  consulacl_token.token: Refreshing state... (ID: 929a4284c36bdaa9ba4a96dbbcfd9839160258643e4d1beb9a15fff6c6bcd027)
+  
+  Import successful!
+  
+  The resources that were imported are shown above. These resources are now in
+  your Terraform state and will henceforth be managed by Terraform.
+```
+
 
 ## Development
 
@@ -216,8 +229,14 @@ $ make test
   ?   	github.com/ashald/terraform-provider-consulacl	[no test files]
   === RUN   TestProvider
   --- PASS: TestProvider (0.00s)
+  === RUN   TestIntegrationToken
+  --- SKIP: TestIntegrationToken (0.00s)
+  	testing.go:427: Acceptance tests skipped unless env 'TF_ACC' set
+  === RUN   TestIntegrationTokenImport
+  --- SKIP: TestIntegrationTokenImport (0.00s)
+  	testing.go:427: Acceptance tests skipped unless env 'TF_ACC' set
   PASS
-  ok  	github.com/ashald/terraform-provider-consulacl/consulacl	0.028s
+  ok  	github.com/ashald/terraform-provider-consulacl/consulacl	(cached)
   go vet ./...
 ```
 
@@ -232,9 +251,11 @@ $ make test-integration
   === RUN   TestProvider
   --- PASS: TestProvider (0.00s)
   === RUN   TestIntegrationToken
-  --- PASS: TestIntegrationToken (0.29s)
+  --- PASS: TestIntegrationToken (0.30s)
+  === RUN   TestIntegrationTokenImport
+  --- PASS: TestIntegrationTokenImport (0.06s)
   PASS
-  ok  	github.com/ashald/terraform-provider-consulacl/consulacl	0.350s
+  ok  	github.com/ashald/terraform-provider-consulacl/consulacl	0.391s
 ```
 
 If you have [Docker](https://docs.docker.com/install/) installed, you can run Consul with the following command:
@@ -263,7 +284,7 @@ environment variable.
 In order to build plugin for the current platform use [GNU]make:
 ```bash
 $ make build
-  go build -o terraform-provider-consulacl_v1.0.0
+  go build -o terraform-provider-consulacl_v1.1.0
 
 ```
 

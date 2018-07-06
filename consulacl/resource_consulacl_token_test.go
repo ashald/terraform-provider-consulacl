@@ -103,6 +103,37 @@ func TestIntegrationToken(t *testing.T) {
 	})
 }
 
+const aclTokenImportConfig = `
+resource "consulacl_token" "imported" {
+  name  = "Imported"
+  token = "my-imported-token"
+  type  = "client"
+
+  rule { scope="operator" policy="read" }
+}
+`
+
+func TestIntegrationTokenImport(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testPreCheck(t) },
+		Providers: testProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testConsulAclTokenAbsent("my-imported-token"),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: aclTokenImportConfig,
+			},
+			{
+				ResourceName:      "consulacl_token.imported",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateId:     "my-imported-token",
+			},
+		},
+	})
+}
+
 func testConsulAclTokenAbsent(token string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		acl := aclProvider.Meta().(*consul.Client).ACL()
