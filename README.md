@@ -208,6 +208,8 @@ $ git clone git@github.com:ashald/terraform-provider-consulacl.git .
 
 ### Test
 
+#### Unit Tests
+
 ```bash
 $ make test
   go test -v ./...
@@ -218,6 +220,44 @@ $ make test
   ok  	github.com/ashald/terraform-provider-consulacl/consulacl	0.028s
   go vet ./...
 ```
+
+#### Integration Tests
+
+This requires a running Consul agent locally.
+
+```bash
+$ make test-integration
+  TF_ACC=1 go test -v ./... -timeout 1m
+  ?   	github.com/ashald/terraform-provider-consulacl	[no test files]
+  === RUN   TestProvider
+  --- PASS: TestProvider (0.00s)
+  === RUN   TestIntegrationToken
+  --- PASS: TestIntegrationToken (0.29s)
+  PASS
+  ok  	github.com/ashald/terraform-provider-consulacl/consulacl	0.350s
+```
+
+If you have [Docker](https://docs.docker.com/install/) installed, you can run Consul with the following command:
+```bash
+$ make test-server
+  latest: Pulling from library/consul
+  Digest: sha256:ae2c9409a77533485982c00f5c1eab89c090889318cb2f4276d64a7d125f83f8
+  Status: Image is up to date for consul:latest
+  docker run --rm -p 127.0.0.1:8500:8500 -e CONSUL_LOCAL_CONFIG='{"acl_datacenter": "dc1", "acl_master_token": "secret", "bootstrap_expect": 1, "server": true, "ui": true}' 'consul:latest'
+  ...
+```
+
+By default, this will use the
+[latest version of Consul based on the latest image in the Docker repository](https://hub.docker.com/_/consul/).
+You can specify a version using `CONSUL_VERSION` environment variable:
+```bash
+$ CONSUL_VERSION=1.2.0 make test-server
+```
+
+This command will run in foreground and will stop Consul when interrupted.
+Images will be cached locally by Docker so it is quick to restart the server as necessary.
+This will expose Consul on the default address `127.0.0.1:8500` but this can be changed with `CONSUL_ADDRESS`
+environment variable.
 
 ### Build
 In order to build plugin for the current platform use [GNU]make:
