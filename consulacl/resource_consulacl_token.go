@@ -85,6 +85,7 @@ func resourceConsulAclToken() *schema.Resource {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
+				Computed:  true,
 			},
 
 			FieldType: {
