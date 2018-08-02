@@ -87,7 +87,7 @@ resource "consulacl_token" "token" {
 
 ### Download
 ```bash
-$ wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.1.0/terraform-provider-consulacl_v1.1.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+$ wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.1.1/terraform-provider-consulacl_v1.1.1-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
 $ chmod +x ./terraform-provider-transform*
 ```
 
@@ -95,7 +95,7 @@ $ chmod +x ./terraform-provider-transform*
 ```bash
 $ ls -1
   main.tf
-  terraform-provider-consulacl_v1.1.0-linux-amd64
+  terraform-provider-consulacl_v1.1.1-linux-amd64
 
 $ terraform init
   
@@ -284,7 +284,7 @@ environment variable.
 In order to build plugin for the current platform use [GNU]make:
 ```bash
 $ make build
-  go build -o terraform-provider-consulacl_v1.1.0
+  go build -o terraform-provider-consulacl_v1.1.1
 
 ```
 
@@ -298,8 +298,8 @@ executed against a configuration in the same directory.
 In order to prepare provider binaries for all platforms:
 ```bash
 $ make release
-  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.1.0-darwin-amd64'
-  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.1.0-linux-amd64'
+  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.1.1-darwin-amd64'
+  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.1.1-linux-amd64'
 ```
 
 ### Versioning
