@@ -1,5 +1,5 @@
 NAME := terraform-provider-consulacl
-PLATFORMS ?= darwin/amd64 linux/amd64
+PLATFORMS ?= darwin/amd64 linux/amd64 windows/amd64
 VERSION ?= $(shell git describe &>/dev/null && echo "_$$(git describe)")
 
 temp = $(subst /, ,$@)
