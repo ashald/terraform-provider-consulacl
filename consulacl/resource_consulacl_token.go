@@ -3,39 +3,46 @@ package consulacl
 import (
 	"crypto/sha256"
 	"fmt"
+	"log"
+	"reflect"
+	"sort"
+	"strings"
+
 	consul "github.com/hashicorp/consul/api"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	"reflect"
-	"sort"
-	"strings"
 )
 
-const FieldName = "name"
-const FieldToken = "token"
-const FieldType = "type"
+const (
+	FieldName  = "name"
+	FieldToken = "token"
+	FieldType  = "type"
 
-const FieldRule = "rule"
+	FieldRule = "rule"
 
-const FieldScope = "scope"
-const FieldPrefix = "prefix"
-const FieldPolicy = "policy"
+	FieldScope  = "scope"
+	FieldPrefix = "prefix"
+	FieldPolicy = "policy"
+
+	FieldInherits = "inherits"
+)
 
 var prefixedScopes = []string{"agent", "event", "key", "node", "query", "service", "session"}
 var singletonScopes = []string{"keyring", "operator"}
 
-func resourceConsulAclToken() *schema.Resource {
+func resourceConsulACLToken() *schema.Resource {
 	var allScopes []string
 	allScopes = append(allScopes, prefixedScopes...)
 	allScopes = append(allScopes, singletonScopes...)
 
 	return &schema.Resource{
-		Create: resourceConsulAclTokenCreate,
-		Update: resourceConsulAclTokenUpdate,
-		Read:   resourceConsulAclTokenRead,
-		Delete: resourceConsulAclTokenDelete,
+		Create: resourceConsulACLTokenCreate,
+		Update: resourceConsulACLTokenUpdate,
+		Read:   resourceConsulACLTokenRead,
+		Delete: resourceConsulACLTokenDelete,
+		Exists: resourceConsulACLTokenExists,
 
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -55,6 +62,7 @@ func resourceConsulAclToken() *schema.Resource {
 
 			FieldRule: {
 				Type:     schema.TypeSet,
+				Computed: true,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -83,9 +91,9 @@ func resourceConsulAclToken() *schema.Resource {
 
 			FieldToken: {
 				Type:      schema.TypeString,
+				Computed:  true,
 				Optional:  true,
 				Sensitive: true,
-				Computed:  true,
 			},
 
 			FieldType: {
@@ -93,11 +101,33 @@ func resourceConsulAclToken() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"client", "management"}, true),
 			},
+
+			FieldInherits: &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						FieldScope: {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice(allScopes, true),
+						},
+						FieldPrefix: {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						FieldPolicy: {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
 
-func resourceConsulAclTokenCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceConsulACLTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*consul.Client)
 
 	rules, err := extractRules(d.Get(FieldRule).(*schema.Set).List())
@@ -105,7 +135,21 @@ func resourceConsulAclTokenCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	acl := &consul.ACLEntry{
+	var inheritedRules string
+
+	if len(d.Get("inherits").(*schema.Set).List()) > 0 {
+		inherits := d.Get("inherits").(*schema.Set).List()
+
+		existingRules, _ := extractRules(inherits)
+		inheritedRules = inheritedRules + encodeRules(existingRules)
+		rules, _ = dedupeRules(encodeRules(rules), inheritedRules)
+	}
+
+	d.Set(FieldRule, sortRules(rules))
+
+	var acl *consul.ACLEntry
+
+	acl = &consul.ACLEntry{
 		ID:    d.Get(FieldToken).(string),
 		Name:  d.Get(FieldName).(string),
 		Type:  d.Get(FieldType).(string),
@@ -119,16 +163,11 @@ func resourceConsulAclTokenCreate(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId(getSHA256(token))
 	d.Set(FieldToken, token)
-	return resourceConsulAclTokenRead(d, meta)
+	return resourceConsulACLTokenRead(d, meta)
 }
 
-func resourceConsulAclTokenRead(d *schema.ResourceData, meta interface{}) error {
+func resourceConsulACLTokenRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*consul.Client)
-
-	_, err := extractRules(d.Get(FieldRule).(*schema.Set).List())
-	if err != nil {
-		return err
-	}
 
 	acl, _, err := client.ACL().Info(d.Get(FieldToken).(string), nil)
 	if err != nil {
@@ -140,26 +179,56 @@ func resourceConsulAclTokenRead(d *schema.ResourceData, meta interface{}) error 
 		return nil
 	}
 
-	d.Set(FieldName, acl.Name)
-	d.Set(FieldType, acl.Type)
-
 	rules, err := decodeRules(acl.Rules)
 	if err != nil {
 		return err
 	}
 
-	d.Set(FieldRule, rules)
+	d.SetId(getSHA256(acl.ID))
+	d.Set(FieldToken, acl.ID)
+	d.Set(FieldName, acl.Name)
+	d.Set(FieldType, acl.Type)
+	d.Set(FieldRule, sortRules(rules))
 
 	return nil
 }
 
-func resourceConsulAclTokenUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceConsulACLTokenExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+	client := meta.(*consul.Client)
+
+	_, resp, err := client.ACL().Info(d.Get(FieldToken).(string), nil)
+	if err != nil {
+		if resp != nil {
+			log.Printf("[WARN] Token %s not found", d.Get(FieldName).(string))
+			d.SetId("")
+			return false, nil
+		}
+		return false, fmt.Errorf("Error retrieving ACL %s", d.Get(FieldName).(string))
+	}
+
+	return true, nil
+
+}
+
+func resourceConsulACLTokenUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*consul.Client)
 
 	rules, err := extractRules(d.Get(FieldRule).(*schema.Set).List())
 	if err != nil {
 		return err
 	}
+
+	if len(d.Get("inherits").(*schema.Set).List()) > 0 {
+		var inheritedRules string
+
+		inherits := d.Get("inherits").(*schema.Set).List()
+		existingRules, _ := extractRules(inherits)
+
+		inheritedRules = inheritedRules + encodeRules(existingRules)
+		rules, _ = dedupeRules(encodeRules(rules), inheritedRules)
+	}
+
+	d.Set(FieldRule, rules)
 
 	acl := &consul.ACLEntry{
 		ID:    d.Get(FieldToken).(string),
@@ -173,10 +242,10 @@ func resourceConsulAclTokenUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	return resourceConsulAclTokenRead(d, meta)
+	return resourceConsulACLTokenRead(d, meta)
 }
 
-func resourceConsulAclTokenDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceConsulACLTokenDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*consul.Client)
 
 	_, err := client.ACL().Destroy(d.Get(FieldToken).(string), nil)
@@ -239,6 +308,61 @@ func decodeRules(raw string) ([]map[string]string, error) {
 	return result, nil
 }
 
+func dedupeRules(existingRules string, newRules string) ([]map[string]string, error) {
+	var allErrors *multierror.Error
+	var result []map[string]string
+
+	// ACL rules most permissive to least
+	permissions := []string{"write", "read", "deny"}
+
+	newRules = sortString(existingRules + newRules)
+	allRules, err := decodeRules(newRules)
+
+	if err != nil {
+		err := fmt.Errorf("Couldn't decode all the rules")
+		allErrors = multierror.Append(allErrors, err)
+	}
+
+	for _, i := range allRules {
+		found := false
+		for jIndex, j := range result {
+			// Search through the ones we've already added
+			if strings.ToLower(i["scope"]) == strings.ToLower(j["scope"]) {
+				if stringInSlice(i["scope"], prefixedScopes) {
+					iprefix, iok := i["prefix"]
+					jprefix, jok := j["prefix"]
+					if iok && jok {
+						if iprefix == jprefix {
+							iPermissions := indexInSlice(i["policy"], permissions)
+							jPermissions := indexInSlice(j["policy"], permissions)
+
+							// The lower the index, the more permissive
+							// -1 if it's not found (it should never be -1)
+							if jPermissions > -1 && iPermissions < jPermissions {
+								result[jIndex] = i
+								found = true
+							}
+						}
+					}
+				} else if stringInSlice(i["scope"], singletonScopes) {
+					iPermissions := indexInSlice(i["policy"], permissions)
+					jPermissions := indexInSlice(j["policy"], permissions)
+
+					if jPermissions > -1 && iPermissions <= jPermissions {
+						result[jIndex] = i
+						found = true
+					}
+				}
+			}
+		}
+		if found == false {
+			result = append(result, i)
+		}
+	}
+
+	return result, allErrors.ErrorOrNil()
+}
+
 // HCL lib does not provide Marshal/Serialize functionality :/
 func encodeRules(rules []map[string]string) string {
 	var result []string
@@ -267,6 +391,7 @@ func extractRules(rawRules []interface{}) ([]map[string]string, error) {
 	var allErrors *multierror.Error
 
 	var result []map[string]string
+
 	for _, raw := range rawRules {
 		definition := raw.(map[string]interface{})
 
@@ -282,7 +407,12 @@ func extractRules(rawRules []interface{}) ([]map[string]string, error) {
 			allErrors = multierror.Append(allErrors, err)
 		}
 
-		prefix := definition[FieldPrefix].(string)
+		prefix := ""
+		if definition[FieldPrefix] == nil {
+			prefix = ""
+		} else {
+			prefix = definition[FieldPrefix].(string)
+		}
 		rule := map[string]string{FieldScope: scope, FieldPolicy: policy}
 
 		if stringInSlice(scope, prefixedScopes) {
@@ -298,6 +428,15 @@ func extractRules(rawRules []interface{}) ([]map[string]string, error) {
 	return result, allErrors.ErrorOrNil()
 }
 
+func indexInSlice(str string, list []string) int {
+	for index, key := range list {
+		if key == str {
+			return index
+		}
+	}
+	return -1
+}
+
 func stringInSlice(str string, list []string) bool {
 	for _, elem := range list {
 		if elem == str {
@@ -309,11 +448,31 @@ func stringInSlice(str string, list []string) bool {
 
 // We only need this to run manual validation on fields
 func diffResource(d *schema.ResourceDiff, m interface{}) error {
-	_, newRules := d.GetChange(FieldRule)
 
-	_, err := extractRules(newRules.(*schema.Set).List())
-	if err != nil {
-		return err
+	if len(d.Get("inherits").(*schema.Set).List()) > 0 {
+		rules, err := extractRules(d.Get(FieldRule).(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+
+		inherits := d.Get("inherits").(*schema.Set).List()
+		extractedInherits, err := extractRules(inherits)
+		if err != nil {
+			return err
+		}
+		inheritedRules := encodeRules(extractedInherits)
+
+		combinedRules, _ := dedupeRules(encodeRules(rules), inheritedRules)
+
+		d.SetNew(FieldRule, combinedRules)
+
+	} else {
+		_, newRules := d.GetChange(FieldRule)
+
+		_, err := extractRules(newRules.(*schema.Set).List())
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -323,4 +482,23 @@ func getSHA256(src string) string {
 	h := sha256.New()
 	h.Write([]byte(src))
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func sortString(w string) string {
+	s := strings.Split(w, "\n")
+	sort.Strings(s)
+	var n []string
+	for _, str := range s {
+		if str != "" && stringInSlice(str, n) == false {
+			n = append(n, str)
+		}
+	}
+	return strings.Join(n, "\n")
+}
+
+func sortRules(rulesList []map[string]string) []map[string]string {
+	rules := encodeRules(rulesList)
+	rules = sortString(rules)
+	rulesDecoded, _ := decodeRules(rules)
+	return rulesDecoded
 }

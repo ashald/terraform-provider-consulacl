@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"os"
+
 	consul "github.com/hashicorp/consul/api"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 )
 
 const aclTokenConfig = `
@@ -16,25 +17,59 @@ resource "consulacl_token" "token" {
   token = "my-custom-token"
   type  = "client"
 
+  rule { scope="key"      policy="read"  prefix="foo/bar"  		 }
   rule { scope="key"      policy="write" prefix="foo/bar/baz"  }
   rule { scope="operator" policy="read"                        }
   rule { scope="service"  policy="read"  prefix=""             }
+}
+
+resource "consulacl_token" "second" {
+	name = "Second"
+	type = "client"
+
+	rule { scope="key" policy="read" prefix="second" }
+}
+
+resource "consulacl_token" "inherited" {
+	name  = "Inherited token"
+	type  = "client"
+	token = "my-inherited-token"
+
+	rule { scope="key"	policy="write" prefix="foo/bar"      }
+	rule { scope="key"  policy="read"  prefix="foo/bar/baz"  }
+
+	inherits = [  
+							"${consulacl_token.token.rule}",
+							"${consulacl_token.second.rule}"
+							]
 }
 `
 
 const aclTokenConfigUpdate = `
 resource "consulacl_token" "token" {
   name  = "Updated token"
-  token = "my-custom-token"
-  type  = "management"
+	token = "my-custom-token"
+	type  = "management"
 
   rule { scope="key"     policy="write" prefix=""          }
   rule { scope="keyring" policy="write"                    }
   rule { scope="service" policy="read"  prefix="some/path" }
 }
+
+resource "consulacl_token" "inherited" {
+	name  = "Inherited token"
+	type  = "client"
+	token = "my-inherited-token"
+
+	rule { scope="key"	policy="write" prefix="foo/bar"      }
+	rule { scope="key"  policy="read"  prefix="foo/bar/baz"  }
+
+	inherits = [ "${consulacl_token.token.rule}" ]
+}
 `
 
-const rulesOriginal = `key "foo/bar/baz" { policy = "write" }
+const rulesOriginal = `key "foo/bar" { policy = "read" }
+key "foo/bar/baz" { policy = "write" }
 operator = "read"
 service "" { policy = "read" }
 `
@@ -48,11 +83,12 @@ func TestIntegrationToken(t *testing.T) {
 		PreCheck:  func() { testPreCheck(t) },
 		Providers: testProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testConsulAclTokenAbsent("my-custom-token"),
+			testConsulACLTokenAbsent("my-custom-token"),
 		),
 		Steps: []resource.TestStep{
 			{
 				Config: aclTokenConfig,
+				//ExpectNonEmptyPlan: true,
 				Check: resource.ComposeTestCheckFunc(
 					checkTokenConfig("my-custom-token", "name", "A demo token"),
 					checkTokenConfig("my-custom-token", "type", "client"),
@@ -92,11 +128,21 @@ func TestIntegrationToken(t *testing.T) {
 				),
 			},
 			{
+				Config:             aclTokenConfig,
+				ExpectNonEmptyPlan: true,
+				Check: resource.ComposeTestCheckFunc(
+					// Change token in Consul bypassing Terraform
+					checkTokenConfig("my-inherited-token", "type", "client"),
+					mutateRealToken("my-inherited-token", "rules", `key "foo/bar" { policy = "write" }`),
+				),
+			},
+			{
 				Config: aclTokenConfigUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					checkTokenConfig("my-custom-token", "name", "Updated token"),
 					checkTokenConfig("my-custom-token", "type", "management"),
 					checkTokenConfig("my-custom-token", "rules", rulesUpdated),
+					checkTokenConfig("my-inherited-token", "type", "client"),
 				),
 			},
 		},
@@ -118,7 +164,7 @@ func TestIntegrationTokenImport(t *testing.T) {
 		PreCheck:  func() { testPreCheck(t) },
 		Providers: testProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
-			testConsulAclTokenAbsent("my-imported-token"),
+			testConsulACLTokenAbsent("my-imported-token"),
 		),
 		Steps: []resource.TestStep{
 			{
@@ -134,7 +180,7 @@ func TestIntegrationTokenImport(t *testing.T) {
 	})
 }
 
-func testConsulAclTokenAbsent(token string) resource.TestCheckFunc {
+func testConsulACLTokenAbsent(token string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		acl := aclProvider.Meta().(*consul.Client).ACL()
 		entry, _, err := acl.Info(token, nil)
