@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.2.0 - 2018-10-XX
+
+- Inheritency for rules between ACLs
+
 ## 1.1.1 - 2018-08-01
 
 ### Fixed
