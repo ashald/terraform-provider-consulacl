@@ -6,3 +6,5 @@ terraform-provider-stateful*
 terraform-provider-*
 *.yaml
 *.tf
+.vagrant
+
