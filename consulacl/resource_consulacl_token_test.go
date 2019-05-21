@@ -16,9 +16,20 @@ resource "consulacl_token" "token" {
   token = "my-custom-token"
   type  = "client"
 
-  rule { scope="key"      policy="write" prefix="foo/bar/baz"  }
-  rule { scope="operator" policy="read"                        }
-  rule { scope="service"  policy="read"  prefix=""             }
+  rule {
+	scope="key"
+	policy="write"
+	prefix="foo/bar/baz"
+  }
+  rule {
+    scope="operator"
+	policy="read"
+  }
+  rule {
+	scope="service"
+	policy="read"
+	prefix=""
+  }
 }
 `
 
@@ -28,9 +39,20 @@ resource "consulacl_token" "token" {
   token = "my-custom-token"
   type  = "management"
 
-  rule { scope="key"     policy="write" prefix=""          }
-  rule { scope="keyring" policy="write"                    }
-  rule { scope="service" policy="read"  prefix="some/path" }
+  rule {
+	scope="key"
+	policy="write"
+	prefix=""
+  }
+  rule {
+	scope="keyring"
+	policy="write"
+  }
+  rule {
+	scope="service"
+	policy="read"
+	prefix="some/path"
+  }
 }
 `
 
@@ -109,7 +131,10 @@ resource "consulacl_token" "imported" {
   token = "my-imported-token"
   type  = "client"
 
-  rule { scope="operator" policy="read" }
+  rule {
+	scope="operator"
+	policy="read"
+  }
 }
 `
 
