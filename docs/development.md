@@ -101,7 +101,7 @@ environment variable.
 In order to build plugin for the current platform use [GNU]make:
 ```bash
 $ make build
-  go build -o terraform-provider-consulacl_v1.1.1
+  go build -o terraform-provider-consulacl_v1.2.0
 
 ```
 
@@ -115,8 +115,8 @@ executed against a configuration in the same directory.
 In order to prepare provider binaries for all platforms:
 ```bash
 $ make release
-  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.1.1-darwin-amd64'
-  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.1.1-linux-amd64'
+  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.2.0-darwin-amd64'
+  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.2.0-linux-amd64'
 ```
 
 ## Versioning

@@ -21,13 +21,13 @@ data "consulacl_token" "test" {
 
 func TestIntegrationDataSourceToken(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		IsUnitTest:false,
-		Providers: testProviders,
-		PreCheck: func() { testDataSourceConsulAclTokenPreConfig(t) },
+		IsUnitTest: false,
+		Providers:  testProviders,
+		PreCheck:   func() { testDataSourceConsulAclTokenPreConfig(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: dataSourceAclTokenConfig,
-				Check: resource.TestCheckResourceAttr("data.consulacl_token.test", "secret", dataSourceAclTokenSecret),
+				Check:  resource.TestCheckResourceAttr("data.consulacl_token.test", "secret", dataSourceAclTokenSecret),
 			},
 			{
 				Config: "locals {}",
