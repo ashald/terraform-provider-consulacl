@@ -3,12 +3,13 @@
 ## Overview
 
 This provider defines Terraform resources and data sources related to Consul ACL subsystem that are missing from the official one.
-*PLEASE NOTE THAT USING THIS PROVIDER WOULD EXPOSE SENSITIVE TOKEN ID VALUES IN YOUR STATE.*
 
-This plugin defines following resources:  
+**PLEASE NOTE THAT USING THIS PROVIDER WOULD EXPOSE SENSITIVE TOKEN ID VALUES IN YOUR STATE.**
+
+### Resources:  
 * [resource "consulacl_token"](./docs/resource_consulacl_token.md) - manages a single Consul ACL token (legacy API, pre Consul 1.4)
 
-This plugin defines following data sources:
+### Data Sources:
 * [data "consulacl_token"](./docs/data_source_consulacl_token.md) - retrieves post-Consul 1.4 ACL token's secret ID by its accessor ID
 
 ## Installation
@@ -30,8 +31,8 @@ or it can be [installed system-wide](https://www.terraform.io/docs/configuration
 
 The simplest way to get started is:
 ```bash
-$ wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.1.1/terraform-provider-consulacl_v1.1.1-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
-$ chmod +x ./terraform-provider-transform*
+wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.1.1/terraform-provider-consulacl_v1.1.1-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+chmod +x ./terraform-provider-transform*
 ```
 
 ## Configuration
@@ -73,8 +74,9 @@ provider "consulacl" {
 
 ## Development
 
-**terraform-provider-consulacl** is written and maintained by [Borys Pierov](https://github.com/Ashald).
-Contributions are welcome and should follow [development guidelines](./docs/development.md) and are reflected in [CONTRIBUTORS.md](./CONTRIBUTORS.md).
+Provider is written and maintained by [Borys Pierov](https://github.com/Ashald).
+Contributions are welcome and should follow [development guidelines](./docs/development.md).
+All contributors are honored in [CONTRIBUTORS.md](./CONTRIBUTORS.md).
 
 ## License
 
