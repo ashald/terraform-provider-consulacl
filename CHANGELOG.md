@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Added
+
+- Data source `consulacl_token` to retrieve Consul ACL secret id by its accessor id
+
 ## 1.1.1 - 2018-08-01
 
 ### Fixed

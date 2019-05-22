@@ -161,8 +161,7 @@ func TestIntegrationTokenImport(t *testing.T) {
 
 func testConsulAclTokenAbsent(token string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		acl := aclProvider.Meta().(*consul.Client).ACL()
-		entry, _, err := acl.Info(token, nil)
+		entry, _, err := testClient.ACL().Info(token, nil)
 		if err != nil {
 			return err
 		}
@@ -175,34 +174,29 @@ func testConsulAclTokenAbsent(token string) resource.TestCheckFunc {
 
 func mutateRealToken(token, field, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		acl := aclProvider.Meta().(*consul.Client).ACL()
-
-		entry, _, err := acl.Info(token, nil)
+		entry, _, err := testClient.ACL().Info(token, nil)
 		if err != nil {
 			return err
 		}
 
 		tokenMap := entryToMap(entry)
 		tokenMap[field] = value
-		_, err = acl.Update(mapToEntry(tokenMap), nil)
+		_, err = testClient.ACL().Update(mapToEntry(tokenMap), nil)
 		return err
 	}
 }
 
 func deleteToken(token string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		acl := aclProvider.Meta().(*consul.Client).ACL()
-
-		_, err := acl.Destroy(token, nil)
+		_, err := testClient.ACL().Destroy(token, nil)
 		return err
 	}
 }
 
 func checkTokenConfig(token, field, expected string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		acl := aclProvider.Meta().(*consul.Client).ACL()
 
-		entry, _, err := acl.Info(token, nil)
+		entry, _, err := testClient.ACL().Info(token, nil)
 		if err != nil {
 			return err
 		}

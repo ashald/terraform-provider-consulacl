@@ -15,6 +15,8 @@ import (
 
 const FieldName = "name"
 const FieldToken = "token"
+const FieldAccessor = "accessor"
+const FieldSecret = "secret"
 const FieldType = "type"
 
 const FieldRule = "rule"

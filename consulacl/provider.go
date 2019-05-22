@@ -70,6 +70,10 @@ func Provider() terraform.ResourceProvider {
 			"consulacl_token": resourceConsulAclToken(),
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"consulacl_token": dataSourceConsulAclToken(),
+		},
+
 		ConfigureFunc: configure,
 	}
 }
