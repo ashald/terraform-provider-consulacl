@@ -31,7 +31,7 @@ or it can be [installed system-wide](https://www.terraform.io/docs/configuration
 
 The simplest way to get started is:
 ```bash
-wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.2.0/terraform-provider-consulacl_v1.2.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/1.3.0/terraform-provider-consulacl_v1.3.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
 chmod +x ./terraform-provider-consulacl*
 ```
 
