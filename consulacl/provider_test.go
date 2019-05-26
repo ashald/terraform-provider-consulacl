@@ -23,12 +23,12 @@ func init() {
 		"consulacl": aclProvider,
 	}
 
-	ok := false
+	ok := os.Getenv("TF_ACC") == ""
 
-	if v := os.Getenv("CONSUL_TOKEN"); v != "" {
+	if os.Getenv("CONSUL_TOKEN") != "" {
 		ok = true
 	}
-	if v := os.Getenv("CONSUL_HTTP_TOKEN"); v != "" {
+	if os.Getenv("CONSUL_HTTP_TOKEN") != "" {
 		ok = true
 	}
 	if !ok {
