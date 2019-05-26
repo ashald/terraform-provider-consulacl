@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.0 - 2019-05-26
+
+### Added
+
+- Integration with Terraform `v0.12`
+
 ## 1.2.0 - 2019-05-21
 
 ### Added
