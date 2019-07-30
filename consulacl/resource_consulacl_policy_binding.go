@@ -14,15 +14,15 @@ func resourceConsulAclPolicyBinding() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			FieldAccessor: {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				Description: "Token's accessor ID",
 			},
 			FieldPolicy: {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew: true,
+				ForceNew:    true,
 				Description: "Policy name",
 			},
 		},
@@ -40,7 +40,7 @@ func resourceConsulAclPolicyBindingCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	d.SetId(getSHA256(accessor+policy))
+	d.SetId(getSHA256(accessor + policy))
 
 	index := -1
 	for i, policyLink := range aclToken.Policies {
