@@ -48,12 +48,16 @@ release: $(PLATFORMS)
 
 .PHONY: $(PLATFORMS)
 $(PLATFORMS):
-	GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=$(os) GOARCH=$(arch) go build -o '$(RELEASE_DIR)/$(BASE)-$(os)-$(arch)'
+	GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=$(os) GOARCH=$(arch) go build -ldflags="-s -w" -o '$(RELEASE_DIR)/$(BASE)-$(os)-$(arch)'
 
 .PHONY: compress
 compress:
 	upx $(RELEASE_DIR)/*
 
+.PHONY: zip
+zip:
+	cd $(RELEASE_DIR); ls -1 | xargs -I % zip -9 %.zip %
+
 .PHONY: sums
 sums:
-	cd $(RELEASE_DIR); shasum -a 256 para* > SHA256SUMS
+	cd $(RELEASE_DIR); shasum -a 256 $(NAME)* > SHA256SUMS
