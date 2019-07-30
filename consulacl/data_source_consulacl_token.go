@@ -10,13 +10,13 @@ func dataSourceConsulAclToken() *schema.Resource {
 		Read: dataSourceConsulAclTokenRead,
 
 		Schema: map[string]*schema.Schema{
-			"accessor": {
+			FieldAccessor: {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"secret": {
+			FieldSecret: {
 				Type:      schema.TypeString,
 				Computed:  true,
 				Sensitive: true,
@@ -40,14 +40,14 @@ func dataSourceConsulAclTokenRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.SetId(id)
-	d.Set(FieldSecret, acl.SecretID)
+	_ = d.Set(FieldSecret, acl.SecretID)
 
 	rules, err := decodeRules(acl.Rules)
 	if err != nil {
 		return err
 	}
 
-	d.Set(FieldRule, rules)
+	_ = d.Set(FieldRule, rules)
 
 	return nil
 }

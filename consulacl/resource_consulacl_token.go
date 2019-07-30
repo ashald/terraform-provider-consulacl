@@ -41,7 +41,7 @@ func resourceConsulAclToken() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-				d.Set(FieldToken, d.Id())
+				_ = d.Set(FieldToken, d.Id())
 				d.SetId(getSHA256(d.Id()))
 				return []*schema.ResourceData{d}, nil
 			},
