@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.4.0 - 2019-07-30
 
 ### Added
 

@@ -110,9 +110,9 @@ executed against a configuration in the same directory.
 In order to prepare provider binaries for all platforms:
 ```bash
 $ make release
-  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.3.0-darwin-amd64'
-  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.3.0-linux-amd64'
-  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=windows GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.3.0-windows-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.4.0-darwin-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.4.0-linux-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=windows GOARCH=amd64 go build -o './release/terraform-provider-consulacl_v1.4.0-windows-amd64'
 ```
 
 ## Versioning
