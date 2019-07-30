@@ -8,6 +8,7 @@ This provider defines Terraform resources and data sources related to Consul ACL
 
 ### Resources:  
 * [resource "consulacl_token"](./docs/resource_consulacl_token.md) - manages a single Consul ACL token (legacy API, pre Consul 1.4)
+* [resource "consulacl_policy_binding"](./docs/resource_consulacl_policy_binding.md) - manages bindings between post-Consul 1.4 ACL policies and tokens by their accessor IDs
 
 ### Data Sources:
 * [data "consulacl_token"](./docs/data_source_consulacl_token.md) - retrieves post-Consul 1.4 ACL token's secret ID by its accessor ID

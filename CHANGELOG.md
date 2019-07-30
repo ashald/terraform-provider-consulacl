@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Added
+
+- Resource `consulacl_policy_binding` to assign post-Consul 1.4 ACL policies to tokens by their accessor IDs
+
 ## 1.3.0 - 2019-05-26
 
 ### Added
