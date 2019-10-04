@@ -24,10 +24,66 @@ its accessor ID
 > Terraform automatically discovers the Providers when it parses configuration files.
 > This only occurs when the init command is executed.
 
-Currently Terraform is able to automatically download only
-[official plugins distributed by HashiCorp](https://github.com/terraform-providers).
+Currently Terraform is able to automatically download only [official plugins distributed by HashiCorp](https://github.com/terraform-providers).
 
-[All other plugins](https://www.terraform.io/docs/providers/type/community-index.html) should be installed manually.
+The provider plugin can be installed automatically via [Para - 3rd-party plugin manager for Terraform](https://github.com/paraterraform/para)
+or it can be downloaded and installed manually.  
+
+### Para
+
+This plugin is available via [default index](https://github.com/paraterraform/index) for [Para](https://github.com/paraterraform/para).
+If you use Para or Para Launcher you can just skip to the [Usage](#usage) section below assuming you'd wrap all calls to Terraform with Para:
+```bash
+$ curl -Lo para https://raw.githubusercontent.com/paraterraform/para/master/para && chmod +x para 
+
+$ ./para terraform init
+Para Launcher Activated!
+- Checking para.cfg.yaml in current directory for 'version: X.Y.Z'
+- Desired version: latest (latest is used when no version specified)
+- Executing '$TMPDIR/para-501/para/latest/para_v0.4.3_darwin-amd64'
+
+------------------------------------------------------------------------
+
+Para is being initialized...
+- Cache Dir: $TMPDIR/para-501
+- Terraform: downloading to $TMPDIR/para-501/terraform/0.12.9/darwin_amd64
+- Plugin Dir: terraform.d/plugins
+- Primary Index: https://raw.githubusercontent.com/paraterraform/index/master/para.idx.yaml as of 2019-10-04T12:18:32-04:00 (providers: 16)
+- Index Extensions: para.idx.d (0/0), ~/.para/para.idx.d (0/0), /etc/para/para.idx.d (0/0)
+- Command: terraform init
+
+------------------------------------------------------------------------
+
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Para provides 3rd-party Terraform provider plugin 'consulacl' version 'v1.5.0' for 'darwin_amd64' (downloading)
+
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = "..." constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.consulacl: version = "~> 1.5"
+
+Terraform has been successfully initialized!
+```  
+
+If you use Para but don't use the [default index](https://github.com/paraterraform/index) you can make the plugin
+available by including index extension for this plugin: either add [`provider.consulacl.yaml`](./provider.consulacl.yaml)
+from this repo to your [Para index extensions dir](https://github.com/paraterraform/para#extensions) to fix currently
+available versions or create `provider.consulacl.yaml` as an empty file and put the URL to the aforementioned file
+inside to automatically get updates:
+```yaml
+https://raw.githubusercontent.com/ashald/terraform-provider-consulacl/master/provider.consulacl.yaml
+```
+
+### Manual
 
 > Terraform will search for matching Providers via a
 > [Discovery](https://www.terraform.io/docs/extend/how-terraform-works.html#discovery) process, **including the current
@@ -36,9 +92,8 @@ Currently Terraform is able to automatically download only
 This means that the plugin should either be placed into current working directory where Terraform will be executed from
 or it can be [installed system-wide](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins).
 
-The simplest way to get started is:
 ```bash
-wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/1.4.0/terraform-provider-consulacl_v1.4.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/1.5.0/terraform-provider-consulacl_v1.5.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
 chmod +x ./terraform-provider-consulacl*
 ```
 
