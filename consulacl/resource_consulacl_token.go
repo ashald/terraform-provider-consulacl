@@ -13,18 +13,6 @@ import (
 	"strings"
 )
 
-const FieldName = "name"
-const FieldToken = "token"
-const FieldAccessor = "accessor"
-const FieldSecret = "secret"
-const FieldType = "type"
-
-const FieldRule = "rule"
-
-const FieldScope = "scope"
-const FieldPrefix = "prefix"
-const FieldPolicy = "policy"
-
 var prefixedScopes = []string{"agent", "event", "key", "node", "query", "service", "session"}
 var singletonScopes = []string{"keyring", "operator"}
 

@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Added
+
+- Resource `consulacl_token14` to manage post-Consul 1.4 tokens and their `accessor`/`secret` fields
+
 ## 1.4.0 - 2019-07-30
 
 ### Added

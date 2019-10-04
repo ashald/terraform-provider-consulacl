@@ -1,7 +1,8 @@
-package consulacl
+package consulacl_test
 
 import (
 	"fmt"
+	"github.com/ashald/terraform-provider-consulacl/consulacl"
 	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/terraform"
 	"testing"
@@ -52,7 +53,7 @@ func testResourcePolicyBindingPreConfig(t *testing.T) {
 		t.Fatal("Either CONSUL_TOKEN or CONSUL_HTTP_TOKEN must be set for integration tests")
 	}
 
-	rp := Provider()
+	rp := consulacl.Provider()
 
 	raw := map[string]interface{}{}
 

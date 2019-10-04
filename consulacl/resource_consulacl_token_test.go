@@ -1,13 +1,11 @@
-package consulacl
+package consulacl_test
 
 import (
 	"fmt"
 	"testing"
-
 	consul "github.com/hashicorp/consul/api"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 )
 
 const aclTokenConfig = `
@@ -67,7 +65,7 @@ service "some/path" { policy = "read" }
 
 func TestIntegrationToken(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testPreCheck(t) },
+		PreCheck:  func() { testResourcePreConfig(t) },
 		Providers: testProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testConsulAclTokenAbsent("my-custom-token"),
@@ -140,7 +138,7 @@ resource "consulacl_token" "imported" {
 
 func TestIntegrationTokenImport(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testPreCheck(t) },
+		PreCheck:  func() { testResourcePreConfig(t) },
 		Providers: testProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testConsulAclTokenAbsent("my-imported-token"),
@@ -179,9 +177,9 @@ func mutateRealToken(token, field, value string) resource.TestCheckFunc {
 			return err
 		}
 
-		tokenMap := entryToMap(entry)
+		tokenMap := aclEntryToMap(entry)
 		tokenMap[field] = value
-		_, err = testClient.ACL().Update(mapToEntry(tokenMap), nil)
+		_, err = testClient.ACL().Update(aclEntryFromMap(tokenMap), nil)
 		return err
 	}
 }
@@ -203,7 +201,7 @@ func checkTokenConfig(token, field, expected string) resource.TestCheckFunc {
 		if entry == nil {
 			return fmt.Errorf("ACL token %v doesn't exist, but should", token)
 		}
-		entryMap := entryToMap(entry)
+		entryMap := aclEntryToMap(entry)
 		actual := entryMap[field]
 		if actual != expected {
 			return fmt.Errorf("ACL token '%#v', field '%s' has value '%v'; expected '%v'", entryMap, field, actual, expected)
@@ -212,17 +210,7 @@ func checkTokenConfig(token, field, expected string) resource.TestCheckFunc {
 	}
 }
 
-func testPreCheck(t *testing.T) {
-	if v := os.Getenv("CONSUL_TOKEN"); v != "" {
-		return
-	}
-	if v := os.Getenv("CONSUL_HTTP_TOKEN"); v != "" {
-		return
-	}
-	t.Fatal("Either CONSUL_TOKEN or CONSUL_HTTP_TOKEN must be set for integration tests")
-}
-
-func entryToMap(entry *consul.ACLEntry) map[string]string {
+func aclEntryToMap(entry *consul.ACLEntry) map[string]string {
 	return map[string]string{
 		"id":    entry.ID,
 		"name":  entry.Name,
@@ -231,7 +219,7 @@ func entryToMap(entry *consul.ACLEntry) map[string]string {
 	}
 }
 
-func mapToEntry(entry map[string]string) *consul.ACLEntry {
+func aclEntryFromMap(entry map[string]string) *consul.ACLEntry {
 	return &consul.ACLEntry{
 		ID:    entry["id"],
 		Name:  entry["name"],

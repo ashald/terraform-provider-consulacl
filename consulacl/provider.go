@@ -68,6 +68,7 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"consulacl_token":          resourceConsulAclToken(),
+			"consulacl_token14":        resourceConsulAclToken14(),
 			"consulacl_policy_binding": resourceConsulAclPolicyBinding(),
 		},
 

@@ -1,7 +1,8 @@
-package consulacl
+package consulacl_test
 
 import (
 	"fmt"
+	"github.com/ashald/terraform-provider-consulacl/consulacl"
 	"github.com/hashicorp/terraform/config"
 	"os"
 	"testing"
@@ -17,7 +18,7 @@ var aclProvider *schema.Provider
 var testClient *consul.Client
 
 func init() {
-	aclProvider = Provider().(*schema.Provider)
+	aclProvider = consulacl.Provider().(*schema.Provider)
 
 	testProviders = map[string]terraform.ResourceProvider{
 		"consulacl": aclProvider,
