@@ -27,7 +27,7 @@ format:
 
 .PHONY: test
 test:
-	GOPROXY="off" GOFLAGS="-mod=vendor" go test -v ./...
+	GOPROXY="off" GOFLAGS="-mod=vendor" go test -count=1 -v ./...
 	GOPROXY="off" GOFLAGS="-mod=vendor" go vet ./...
 
 .PHONY: test-server
@@ -37,7 +37,7 @@ test-server:
 
 .PHONY: test-integration
 test-integration:
-	TF_ACC=1 CONSUL_TOKEN=$(CONSUL_TOKEN) go test -v ./... -timeout 1m
+	TF_ACC=1 CONSUL_TOKEN=$(CONSUL_TOKEN) go test -count=1 -v ./... -timeout 1m
 
 .PHONY: build
 build:
