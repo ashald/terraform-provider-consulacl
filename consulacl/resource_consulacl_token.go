@@ -16,6 +16,8 @@ import (
 var prefixedScopes = []string{"agent", "event", "key", "node", "query", "service", "session"}
 var singletonScopes = []string{"keyring", "operator"}
 
+const anonymousToken = "anonymous"
+
 func resourceConsulAclToken() *schema.Resource {
 	var allScopes []string
 	allScopes = append(allScopes, prefixedScopes...)
@@ -168,10 +170,9 @@ func resourceConsulAclTokenUpdate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceConsulAclTokenDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*consul.Client)
-
 	token := d.Get(FieldToken).(string)
 
-	if token == "anonymous" {
+	if token == anonymousToken {
 		// It's not possible to delete the "anonymous" token.
 		// Instead, we force-update it to its (supposedly) default value, where
 		// it offers no permissions whatsoever.
@@ -180,25 +181,20 @@ func resourceConsulAclTokenDelete(d *schema.ResourceData, meta interface{}) erro
 		// gets "deleted".
 		acl, _, err := client.ACL().Info(token, nil)
 		if err != nil {
-			return err
+			return fmt.Errorf("anonymous token not found: %w", err)
 		}
 
 		// Reset the rules for token. This gives no permissions on the Consul cluster.
 		acl.Rules = ""
 		_, err = client.ACL().Update(acl, nil)
 		if err != nil {
+			return fmt.Errorf("unable to update anonymous token ACL: %w", err)
+		}
+	} else {
+		_, err := client.ACL().Destroy(token, nil)
+		if err != nil {
 			return err
 		}
-
-		// Delete the state: we can pretend the anonymous token had been safely
-		// removed.
-		d.SetId("")
-		return nil
-	}
-
-	_, err := client.ACL().Destroy(token, nil)
-	if err != nil {
-		return err
 	}
 
 	d.SetId("")
