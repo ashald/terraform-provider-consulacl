@@ -2,7 +2,7 @@
 
 ## Go
 
-In order to work on the provider, [Go](http://www.golang.org) should be installed first (version 1.11+ is *required*).
+In order to work on the provider, [Go](http://www.golang.org) should be installed first (version 1.13+ is *required*).
 [goenv](https://github.com/syndbg/goenv) and [gvm](https://github.com/moovweb/gvm) are great utilities that can help a
 lot with that and simplify setup tremendously. 
 [GOPATH](http://golang.org/doc/code.html#GOPATH) should be setup correctly and `$GOPATH/bin` should be
