@@ -58,7 +58,7 @@ Para is being initialized...
 Initializing the backend...
 
 Initializing provider plugins...
-- Para provides 3rd-party Terraform provider plugin 'consulacl' version 'v1.5.0' for 'darwin_amd64' (downloading)
+- Para provides 3rd-party Terraform provider plugin 'consulacl' version 'v1.6.0' for 'darwin_amd64' (downloading)
 
 
 The following providers do not have any version constraints in configuration,
@@ -93,7 +93,7 @@ This means that the plugin should either be placed into current working director
 or it can be [installed system-wide](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins).
 
 ```bash
-wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/1.5.0/terraform-provider-consulacl_v1.5.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+wget "https://github.com/ashald/terraform-provider-consulacl/releases/download/1.6.0/terraform-provider-consulacl_v1.6.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
 chmod +x ./terraform-provider-consulacl*
 ```
 

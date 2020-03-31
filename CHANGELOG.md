@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.6.0 - 2020-03-31
+
+### Added
+
+- Resource `consulacl_token` now resets `anonymous` token permissions upon deletion as it cannot be removed 
+
 ## 1.5.0 - 2019-10-04
 
 ### Added
