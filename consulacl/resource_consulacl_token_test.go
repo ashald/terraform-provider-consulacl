@@ -2,10 +2,10 @@ package consulacl_test
 
 import (
 	"fmt"
-	"testing"
 	consul "github.com/hashicorp/consul/api"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"testing"
 )
 
 const aclTokenConfig = `
@@ -155,6 +155,56 @@ func TestIntegrationTokenImport(t *testing.T) {
 			},
 		},
 	})
+}
+
+const aclTokenAnonymous = `
+resource "consulacl_token" "anonymous" {
+  name  = "The anonymous token"
+  token = "anonymous"
+  type  = "client"
+
+  rule {
+	scope  = "key"
+	policy = "write"
+	prefix = "test"
+  }
+}
+`
+
+func TestIntegrationTokenAnonymous(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testResourcePreConfig(t) },
+		Providers: testProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testConsulAnonymousEmpty,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: aclTokenAnonymous,
+				Check: resource.ComposeTestCheckFunc(
+					checkTokenConfig("anonymous", "name", "The anonymous token"),
+				),
+			},
+		},
+	})
+}
+
+func testConsulAnonymousEmpty(s *terraform.State) error {
+	entry, _, err := testClient.ACL().Info("anonymous", nil)
+	if err != nil {
+		return err
+	}
+
+	if entry == nil {
+		// This is seriously broken...
+		return fmt.Errorf("Anonymous ACL token doesn't exist?!)")
+	}
+
+	if entry.Rules != "" {
+		return fmt.Errorf("Anonymous ACL token should have no rules, but has: %s", entry.Rules)
+	}
+
+	return nil
 }
 
 func testConsulAclTokenAbsent(token string) resource.TestCheckFunc {

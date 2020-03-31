@@ -16,6 +16,8 @@ import (
 var prefixedScopes = []string{"agent", "event", "key", "node", "query", "service", "session"}
 var singletonScopes = []string{"keyring", "operator"}
 
+const anonymousToken = "anonymous"
+
 func resourceConsulAclToken() *schema.Resource {
 	var allScopes []string
 	allScopes = append(allScopes, prefixedScopes...)
@@ -167,11 +169,32 @@ func resourceConsulAclTokenUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceConsulAclTokenDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*consul.Client)
+	acl := meta.(*consul.Client).ACL()
+	token := d.Get(FieldToken).(string)
 
-	_, err := client.ACL().Destroy(d.Get(FieldToken).(string), nil)
-	if err != nil {
-		return err
+	if token == anonymousToken {
+		// It's not possible to delete the "anonymous" token.
+		// Instead, we force-update it to its (supposedly) default value, where
+		// it offers no permissions whatsoever.
+		// Note that, if the anonymous token was managed outside Terraform and
+		// had a default value different from "", this loses that value when it
+		// gets "deleted".
+		aclEntry, _, err := acl.Info(token, nil)
+		if err != nil {
+			return fmt.Errorf("anonymous token not found: %w", err)
+		}
+
+		// Reset the rules for token. This gives no permissions on the Consul cluster.
+		aclEntry.Rules = ""
+		_, err = acl.Update(aclEntry, nil)
+		if err != nil {
+			return fmt.Errorf("unable to update anonymous token ACL: %w", err)
+		}
+	} else {
+		_, err := acl.Destroy(token, nil)
+		if err != nil {
+			return err
+		}
 	}
 
 	d.SetId("")
