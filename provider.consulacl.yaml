@@ -1,3 +1,16 @@
+v1.6.0:
+  darwin_amd64:
+    url: https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.6.0/terraform-provider-consulacl_v1.6.0-darwin-amd64.zip
+    size: 8335376
+    digest: sha256:bfecba1894537ec118b28e8200e2d2ab0f8822ced3c641eba43d7a343239a86a
+  linux_amd64:
+    url: https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.6.0/terraform-provider-consulacl_v1.6.0-linux-amd64.zip
+    size: 7918848
+    digest: sha256:12d755cf0b170596fb9c9e52e39053efa4c2d06e71ed7b91b1721cf0a2667040
+  windows_amd64:
+    url: https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.6.0/terraform-provider-consulacl_v1.6.0-windows-amd64.zip
+    size: 7872000
+    digest: sha256:3048e5f4eb847c3df36f50d22b5644d76a41b7cd4b99ccb9289f329d4cfe5fa5
 v1.5.0:
   darwin_amd64:
     url: https://github.com/ashald/terraform-provider-consulacl/releases/download/v1.5.0/terraform-provider-consulacl_v1.5.0-darwin-amd64.zip
