@@ -3,10 +3,10 @@ package consulacl_test
 import (
 	"fmt"
 	"github.com/ashald/terraform-provider-consulacl/consulacl"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 const resourceAclToken14Accessor = "86bfeed0-bc8f-4bd6-8dcb-e4f404409a4d"
@@ -30,9 +30,9 @@ resource "consulacl_token14" "test" {
 
 func TestIntegrationResourceToken14(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		IsUnitTest: false,
-		Providers:  testProviders,
-		PreCheck:   func() { testResourcePreConfig(t) },
+		IsUnitTest:   false,
+		Providers:    testProviders,
+		PreCheck:     func() { testResourcePreConfig(t) },
 		CheckDestroy: testResourceToken14Absent(resourceAclToken14Accessor),
 		Steps: []resource.TestStep{
 			{

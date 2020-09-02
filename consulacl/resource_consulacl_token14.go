@@ -3,7 +3,7 @@ package consulacl
 import (
 	"fmt"
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceConsulAclToken14() *schema.Resource {

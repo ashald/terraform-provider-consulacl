@@ -3,13 +3,12 @@ package consulacl_test
 import (
 	"fmt"
 	"github.com/ashald/terraform-provider-consulacl/consulacl"
-	"github.com/hashicorp/terraform/config"
 	"os"
 	"testing"
 
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 var testProviders map[string]terraform.ResourceProvider
@@ -38,12 +37,7 @@ func init() {
 
 	raw := map[string]interface{}{}
 
-	rawConfig, err := config.NewRawConfig(raw)
-	if err != nil {
-		panic(fmt.Sprintf("error initializing config for the test provider instance: %s", err))
-	}
-
-	err = aclProvider.Configure(terraform.NewResourceConfig(rawConfig))
+	err = aclProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
 		panic(fmt.Sprintf("error configuring the test provider instance: %s", err))
 	}
