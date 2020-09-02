@@ -56,7 +56,7 @@ func testResourcePolicyBindingPreConfig(t *testing.T) {
 
 	raw := map[string]interface{}{}
 
-	err = rp.Configure(terraform.NewResourceConfigRaw(raw))
+	err := rp.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

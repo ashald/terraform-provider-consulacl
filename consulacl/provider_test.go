@@ -37,7 +37,7 @@ func init() {
 
 	raw := map[string]interface{}{}
 
-	err = aclProvider.Configure(terraform.NewResourceConfigRaw(raw))
+	err := aclProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
 		panic(fmt.Sprintf("error configuring the test provider instance: %s", err))
 	}
