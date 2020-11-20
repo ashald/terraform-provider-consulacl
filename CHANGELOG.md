@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.6.1 - 2020-11-20
+
+### Added
+
+- Use `goreleaser` to publish to the Terraform registry.
+
 ## 1.6.0 - 2020-03-31
 
 ### Added
