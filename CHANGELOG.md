@@ -1,10 +1,22 @@
 # Change Log
 
+## 1.6.2 - 2020-11-23
+
+### Added
+
+- Enable logging the HTTP requests when logging level if set to `debug` within Terraform.
+
+## 1.6.1 - 2020-11-20
+
+### Added
+
+- Use `goreleaser` to publish to the Terraform registry.
+
 ## 1.6.0 - 2020-03-31
 
 ### Added
 
-- Resource `consulacl_token` now resets `anonymous` token permissions upon deletion as it cannot be removed 
+- Resource `consulacl_token` now resets `anonymous` token permissions upon deletion as it cannot be removed
 
 ## 1.5.0 - 2019-10-04
 
