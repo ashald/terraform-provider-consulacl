@@ -14,7 +14,7 @@ func resourceConsulAclToken14() *schema.Resource {
 		Update: resourceConsulAclToken14Update,
 		Delete: resourceConsulAclToken14Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
