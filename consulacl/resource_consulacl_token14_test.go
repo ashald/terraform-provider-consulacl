@@ -2,22 +2,25 @@ package consulacl_test
 
 import (
 	"fmt"
-	"github.com/ashald/terraform-provider-consulacl/consulacl"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/ashald/terraform-provider-consulacl/consulacl"
 )
 
-const resourceAclToken14Accessor = "86bfeed0-bc8f-4bd6-8dcb-e4f404409a4d"
-const resourceAclToken14Secret = "fadfa76c-e894-4bea-8ac7-5249356e148b"
-const resourceAclToken14ConfigInitial = `
+const (
+	resourceAclToken14Accessor      = "86bfeed0-bc8f-4bd6-8dcb-e4f404409a4d"
+	resourceAclToken14Secret        = "fadfa76c-e894-4bea-8ac7-5249356e148b"
+	resourceAclToken14ConfigInitial = `
 resource "consulacl_token14" "test" {
 	accessor = "86bfeed0-bc8f-4bd6-8dcb-e4f404409a4d"
 	secret = "fadfa76c-e894-4bea-8ac7-5249356e148b"
 	description = "Test Token Initial"
 }
 `
+)
 
 const resourceAclToken14ConfigUpdated = `
 resource "consulacl_token14" "test" {

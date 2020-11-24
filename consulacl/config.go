@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
 type Config struct {
@@ -53,7 +53,6 @@ func (c *Config) Client() (*consul.Client, error) {
 	}
 
 	client, err := consul.NewClient(config)
-
 	if err != nil {
 		return nil, err
 	}

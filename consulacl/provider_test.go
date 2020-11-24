@@ -1,25 +1,29 @@
 package consulacl_test
 
 import (
+	"context"
 	"fmt"
-	"github.com/ashald/terraform-provider-consulacl/consulacl"
 	"os"
 	"testing"
 
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/ashald/terraform-provider-consulacl/consulacl"
 )
 
-var testProviders map[string]terraform.ResourceProvider
+var testProviders map[string]*schema.Provider
 
-var aclProvider *schema.Provider
-var testClient *consul.Client
+var (
+	aclProvider *schema.Provider
+	testClient  *consul.Client
+)
 
 func init() {
-	aclProvider = consulacl.Provider().(*schema.Provider)
+	aclProvider = consulacl.Provider()
 
-	testProviders = map[string]terraform.ResourceProvider{
+	testProviders = map[string]*schema.Provider{
 		"consulacl": aclProvider,
 	}
 
@@ -37,9 +41,9 @@ func init() {
 
 	raw := map[string]interface{}{}
 
-	err := aclProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		panic(fmt.Sprintf("error configuring the test provider instance: %s", err))
+	diags := aclProvider.Configure(context.TODO(), terraform.NewResourceConfigRaw(raw))
+	if diags != nil {
+		panic(fmt.Sprintf("error configuring the test provider instance: %#v", diags))
 	}
 
 	testClient = aclProvider.Meta().(*consul.Client)

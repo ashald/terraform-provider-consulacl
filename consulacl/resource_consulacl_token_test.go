@@ -2,10 +2,11 @@ package consulacl_test
 
 import (
 	"fmt"
-	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"testing"
+
+	consul "github.com/hashicorp/consul/api"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 const aclTokenConfig = `
@@ -58,6 +59,7 @@ const rulesOriginal = `key "foo/bar/baz" { policy = "write" }
 operator = "read"
 service "" { policy = "read" }
 `
+
 const rulesUpdated = `key "" { policy = "write" }
 keyring = "write"
 service "some/path" { policy = "read" }
@@ -243,7 +245,6 @@ func deleteToken(token string) resource.TestCheckFunc {
 
 func checkTokenConfig(token, field, expected string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-
 		entry, _, err := testClient.ACL().Info(token, nil)
 		if err != nil {
 			return err
