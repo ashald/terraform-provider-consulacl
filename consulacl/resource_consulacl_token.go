@@ -1,20 +1,24 @@
 package consulacl
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
-	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/hcl"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
 	"reflect"
 	"sort"
 	"strings"
+
+	consul "github.com/hashicorp/consul/api"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var prefixedScopes = []string{"agent", "event", "key", "node", "query", "service", "session"}
-var singletonScopes = []string{"keyring", "operator"}
+var (
+	prefixedScopes  = []string{"agent", "event", "key", "node", "query", "service", "session"}
+	singletonScopes = []string{"keyring", "operator"}
+)
 
 const anonymousToken = "anonymous"
 
@@ -224,7 +228,6 @@ func decodeRules(raw string) ([]map[string]string, error) {
 			simplePolicy := map[string]string{FieldScope: scope, FieldPolicy: simplePolicyValue}
 			result = append(result, simplePolicy)
 		} else {
-
 			for i := 0; i < defRef.Len(); i++ {
 				scopePolicyRef := defRef.Index(i)
 
@@ -321,7 +324,7 @@ func stringInSlice(str string, list []string) bool {
 }
 
 // We only need this to run manual validation on fields
-func diffResource(d *schema.ResourceDiff, m interface{}) error {
+func diffResource(_ context.Context, d *schema.ResourceDiff, m interface{}) error {
 	_, newRules := d.GetChange(FieldRule)
 
 	_, err := extractRules(newRules.(*schema.Set).List())

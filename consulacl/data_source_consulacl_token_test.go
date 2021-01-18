@@ -1,24 +1,27 @@
 package consulacl_test
 
 import (
+	"context"
 	"fmt"
-	"github.com/ashald/terraform-provider-consulacl/consulacl"
-	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/terraform"
+	"os"
 	"testing"
 
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform/helper/resource"
-	"os"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/ashald/terraform-provider-consulacl/consulacl"
 )
 
-const dataSourceAclTokenAccessor = "65150ab9-1ba8-4538-a1cd-b0f64780ffb6"
-const dataSourceAclTokenSecret = "b7723bf9-cf63-4c69-96bf-dccb924e4734"
-const dataSourceAclTokenConfig = `
+const (
+	dataSourceAclTokenAccessor = "65150ab9-1ba8-4538-a1cd-b0f64780ffb6"
+	dataSourceAclTokenSecret   = "b7723bf9-cf63-4c69-96bf-dccb924e4734"
+	dataSourceAclTokenConfig   = `
 data "consulacl_token" "test" {
   accessor = "65150ab9-1ba8-4538-a1cd-b0f64780ffb6"
 }
 `
+)
 
 func TestIntegrationDataSourceToken(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -57,14 +60,9 @@ func testDataSourceConsulAclTokenPreConfig(t *testing.T) {
 
 	raw := map[string]interface{}{}
 
-	rawConfig, err := config.NewRawConfig(raw)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	err = rp.Configure(terraform.NewResourceConfig(rawConfig))
-	if err != nil {
-		t.Fatalf("err: %s", err)
+	diags := rp.Configure(context.TODO(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("err: %#v", diags)
 	}
 
 	token := &consul.ACLToken{
@@ -72,7 +70,7 @@ func testDataSourceConsulAclTokenPreConfig(t *testing.T) {
 		SecretID:   dataSourceAclTokenSecret,
 	}
 
-	_, _, err = testClient.ACL().TokenCreate(token, nil)
+	_, _, err := testClient.ACL().TokenCreate(token, nil)
 	if err != nil {
 		t.Fatal("Cannot provision a test token for consulacl_token datasource test", err)
 	}

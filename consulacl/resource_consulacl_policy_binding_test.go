@@ -1,14 +1,15 @@
 package consulacl_test
 
 import (
+	"context"
 	"fmt"
-	"github.com/ashald/terraform-provider-consulacl/consulacl"
-	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/terraform"
+	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"os"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/ashald/terraform-provider-consulacl/consulacl"
 )
 
 const resourcePolicyBinding = `
@@ -57,14 +58,9 @@ func testResourcePolicyBindingPreConfig(t *testing.T) {
 
 	raw := map[string]interface{}{}
 
-	rawConfig, err := config.NewRawConfig(raw)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	err = rp.Configure(terraform.NewResourceConfig(rawConfig))
-	if err != nil {
-		t.Fatalf("err: %s", err)
+	diags := rp.Configure(context.TODO(), terraform.NewResourceConfigRaw(raw))
+	if diags.HasError() {
+		t.Fatalf("err: %#v", diags)
 	}
 }
 

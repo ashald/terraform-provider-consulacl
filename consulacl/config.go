@@ -2,7 +2,9 @@ package consulacl
 
 import (
 	"fmt"
+
 	consul "github.com/hashicorp/consul/api"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 )
 
 type Config struct {
@@ -43,8 +45,14 @@ func (c *Config) Client() (*consul.Client, error) {
 		config.Token = c.Token
 	}
 
-	client, err := consul.NewClient(config)
+	if logging.IsDebugOrHigher() {
+		config.HttpClient.Transport = logging.NewTransport(
+			"consulacl",
+			config.HttpClient.Transport,
+		)
+	}
 
+	client, err := consul.NewClient(config)
 	if err != nil {
 		return nil, err
 	}

@@ -2,8 +2,9 @@ package consulacl
 
 import (
 	"fmt"
+
 	consul "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceConsulAclToken14() *schema.Resource {
@@ -13,7 +14,7 @@ func resourceConsulAclToken14() *schema.Resource {
 		Update: resourceConsulAclToken14Update,
 		Delete: resourceConsulAclToken14Delete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
